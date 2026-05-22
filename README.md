@@ -36,6 +36,7 @@ src/nfl_draft_classifier/   Training code
 output/                     Generated submission file
 reports/                    Cross-validation scores
 models/                     Optional saved models
+docs/                       Modeling notes and submit strategy
 ```
 
 ## 🧠 Model Approach
@@ -49,7 +50,9 @@ The improved pipeline:
 - Trains models with 5-fold cross-validation.
 - Creates a valid `submission.csv` file automatically.
 
-The strongest verified model so far is a tuned **Gradient Boosting Classifier**, with local CV AUC around **0.832**.
+The strongest public leaderboard score so far is **0.84999**, from a CatBoost submission with position-relative athletic features.
+
+New stronger candidates were also generated with **XGBoost** and **CatBoost**. They need leaderboard submission to confirm whether they beat `0.8365`.
 
 ## 🚀 How To Run
 
@@ -73,12 +76,25 @@ Train the model and generate a submission:
 python -m nfl_draft_classifier.train --model gradient_boosting
 ```
 
+Recreate the best next candidate submission:
+
+```bash
+python -m nfl_draft_classifier.train --model gradient_boosting --model-seed 2025 --split-seed 99
+```
+
 ## ✅ Submission File
 
 Upload this file to Omnicampus:
 
 ```text
 output/submission.csv
+```
+
+Best next attempt:
+
+```text
+output/submission_try4_catboost_position_features_avg_top3.csv
+output/submission_public_0_84999_catboost_position_features_avg_top3.csv
 ```
 
 The submission format is:
@@ -106,6 +122,14 @@ The original competition notebook was backed up as:
 
 ```text
 /Users/naomi/Downloads/competition/baseline_original.ipynb
+```
+
+## 🧪 Modeling Notes
+
+Detailed project understanding, experiments tried, and submit order are documented here:
+
+```text
+docs/modeling_notes.md
 ```
 
 ## 🌟 Summary
