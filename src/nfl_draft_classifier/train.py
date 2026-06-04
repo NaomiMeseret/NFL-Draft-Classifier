@@ -61,6 +61,18 @@ def parse_args() -> argparse.Namespace:
     )
     parser.add_argument("--folds", type=int, default=5)
     parser.add_argument("--seed", type=int, default=2025)
+    parser.add_argument(
+        "--model-seed",
+        type=int,
+        default=None,
+        help="Random seed used inside the model. Defaults to --seed.",
+    )
+    parser.add_argument(
+        "--split-seed",
+        type=int,
+        default=None,
+        help="Random seed used for StratifiedKFold splits. Defaults to --seed.",
+    )
     parser.add_argument("--save-model", action="store_true")
     return parser.parse_args()
 
@@ -249,7 +261,9 @@ def save_cv_report(results: Iterable[TrainResult], reports_dir: Path) -> None:
 
 def main() -> None:
     args = parse_args()
-    np.random.seed(args.seed)
+    model_seed = args.seed if args.model_seed is None else args.model_seed
+    split_seed = args.seed if args.split_seed is None else args.split_seed
+    np.random.seed(model_seed)
 
     train_path = args.input_dir / "train.csv"
     test_path = args.input_dir / "test.csv"
@@ -266,11 +280,11 @@ def main() -> None:
     y = train[TARGET].astype(int)
     test_X = test.drop(columns=[ID_COL])
 
-    models = candidate_models(args.seed)
+    models = candidate_models(model_seed)
     selected = models if args.model == "auto" else {args.model: models[args.model]}
 
     results = [
-        evaluate_model(name, model, X, y, args.folds, args.seed)
+        evaluate_model(name, model, X, y, args.folds, split_seed)
         for name, model in selected.items()
     ]
     save_cv_report(results, args.reports_dir)
@@ -280,7 +294,7 @@ def main() -> None:
     print(f"Best model: {best.model_name} ({best.mean_auc:.5f} mean AUC)")
 
     test_pred = fold_ensemble_predictions(
-        best_model, X, y, test_X, args.folds, args.seed
+        best_model, X, y, test_X, args.folds, split_seed
     )
 
     args.output_dir.mkdir(parents=True, exist_ok=True)
