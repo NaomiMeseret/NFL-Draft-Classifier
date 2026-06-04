@@ -1,0 +1,11 @@
+.DS_Store
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+.ipynb_checkpoints/
+
+output/*.csv
+output/**/*.csv
+reports/*.csv
+models/*.joblib
